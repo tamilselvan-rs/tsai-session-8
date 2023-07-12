@@ -1,5 +1,17 @@
 # tsai-session-8
 
+## Folder Structure
+
+```
+.  
+|__ cifar10_base.py # Base Model with configurable Dropout/Normalization/Activation  
+|__ modelhelper.py  # Utils related to Model Training and Testing + Building blocks of an architecture  
+|__ dataloader.py   # Utils related to Data Loading (batchsize and data source selection)  
+|__ plots.py        # Plot Helper  
+|__ common.py       # Runner configuration (Transformations and Device)
+|__ *.ipynb         # Executions
+```
+
 ## How to configure Normalization for Model?
 
 Batch Normalization  
