@@ -26,10 +26,7 @@ def imshow(img):
     plt.show()
 
 import torchvision
-def print_incorrect_preds(incorrect_preds, data, output, target):
-    max_images = 10
-    print(data.shape)
-
+def print_incorrect_preds(incorrect_preds, data, output, target, device):
     '''
     airplane : 0
     automobile : 1
@@ -56,25 +53,20 @@ def print_incorrect_preds(incorrect_preds, data, output, target):
         9: "truck"
     }
 
-    out = torch.index_select(data, 0, torch.tensor(incorrect_preds))
-    print("arg max")
-    pred_labels = torch.index_select(output.argmax(dim=1), 0, torch.tensor(incorrect_preds))
-    correct_labels = torch.index_select(target, 0, torch.tensor(incorrect_preds))
+    out = torch.index_select(data, 0, torch.tensor(incorrect_preds).to(device)).cpu()
+    pred_labels = torch.index_select(output.argmax(dim=1), 0, torch.tensor(incorrect_preds).to(device)).cpu()
+    correct_labels = torch.index_select(target, 0, torch.tensor(incorrect_preds).to(device)).cpu()
 
-    # npimg = out[0].numpy()
-    # print(pred_labels[0].numpy())
-    # print(pred_labels[0].numpy().shape)
-    # print(f'{cifar_dict[int(pred_labels[0].numpy())]}/{cifar_dict[int(correct_labels[0].numpy())]}')
     fig, axs = plt.subplots(2, 5)
     for j in range(2):
         for i in range(5):
             index_1d = 5*j + i;
-            print(out[index_1d])
+            # print(out[index_1d])
             img = out[index_1d] / 2 + 0.5
-            print(img)
+            # print(img)
             npimg = img.numpy()
             npimg = np.transpose(npimg, (1,2,0))
-            print(f'{np.amax(npimg)}, {np.amin(npimg)}')
+            # print(f'{np.amax(npimg)}, {np.amin(npimg)}')
             axs[j, i].imshow(npimg)
             axs[j, i].set_title(f'{cifar_dict[int(pred_labels[index_1d].numpy())]}/{cifar_dict[int(correct_labels[index_1d].numpy())]}')
     plt.show()
@@ -108,7 +100,7 @@ def train_model(model, device, train_loader, optimizer, criterion):
 
     incorrect_preds = get_incorrect_predictions(pred, target)
     if (print_errors):
-        print_incorrect_preds(incorrect_preds, data, pred, target)
+        print_incorrect_preds(incorrect_preds, data, pred, target, device)
         print_errors = False
 
     processed += len(data)
