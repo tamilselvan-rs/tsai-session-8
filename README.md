@@ -10,6 +10,7 @@
 |__ plots.py        # Plot Helper  
 |__ common.py       # Runner configuration (Transformations and Device)
 |__ *.ipynb         # Executions
+|__ models/         # Older MNIST Models of S7 and S8
 ```
 
 ## How to configure Normalization for Model?
