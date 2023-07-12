@@ -38,3 +38,8 @@ Layer Normalization
 2. Model with skip connection achieved best accuracy of 71.97 at 20th Epoch [Cifar-Model](./cifar-10-batch-norm.ipynb)
 
 [Ref](https://theaisummer.com/skip-connections/)
+
+
+## Older Models of MNIST
+[S6](./models/MINST_S6.py)  
+[S7 Best](./models/MINST_S7_Best.py)
