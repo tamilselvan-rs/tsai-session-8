@@ -1,12 +1,83 @@
 from tqdm import tqdm
 from torchsummary import summary
 import torch.nn as nn
+import torch
+import matplotlib.pyplot as plt
+import numpy as np
 
 def print_model_summary(model):
     summary(model, input_size=(3, 32, 32)) 
 
 def get_correct_predict_count(pPrediction, pLabels):
     return pPrediction.argmax(dim=1).eq(pLabels).sum().item()
+
+def get_incorrect_predictions(pPrediction, pLabels):
+    incorrect_preds = pPrediction.argmax(dim=1).eq(pLabels)
+    incorrect_items = []
+    for i in range(len(incorrect_preds)):
+        if (incorrect_preds[i] ==  False):
+            incorrect_items.append(i)
+    return incorrect_items
+
+def imshow(img):
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+import torchvision
+def print_incorrect_preds(incorrect_preds, data, output, target):
+    max_images = 10
+    print(data.shape)
+
+    '''
+    airplane : 0
+    automobile : 1
+    bird : 2
+    cat : 3
+    deer : 4
+    dog : 5
+    frog : 6
+    horse : 7
+    ship : 8
+    truck : 9
+    '''
+
+    cifar_dict = {
+        0: "airplane",
+        1: "automobile",
+        2: "bird",
+        3: "cat",
+        4: "deer",
+        5: "dog",
+        6: "frog",
+        7: "horse",
+        8: "ship",
+        9: "truck"
+    }
+
+    out = torch.index_select(data, 0, torch.tensor(incorrect_preds))
+    print("arg max")
+    pred_labels = torch.index_select(output.argmax(dim=1), 0, torch.tensor(incorrect_preds))
+    correct_labels = torch.index_select(target, 0, torch.tensor(incorrect_preds))
+
+    # npimg = out[0].numpy()
+    # print(pred_labels[0].numpy())
+    # print(pred_labels[0].numpy().shape)
+    # print(f'{cifar_dict[int(pred_labels[0].numpy())]}/{cifar_dict[int(correct_labels[0].numpy())]}')
+    fig, axs = plt.subplots(2, 5)
+    for j in range(2):
+        for i in range(5):
+            index_1d = 5*j + i;
+            print(out[index_1d])
+            img = out[index_1d] / 2 + 0.5
+            print(img)
+            npimg = img.numpy()
+            npimg = np.transpose(npimg, (1,2,0))
+            print(f'{np.amax(npimg)}, {np.amin(npimg)}')
+            axs[j, i].imshow(npimg)
+            axs[j, i].set_title(f'{cifar_dict[int(pred_labels[index_1d].numpy())]}/{cifar_dict[int(correct_labels[index_1d].numpy())]}')
+    plt.show()
 
 def train_model(model, device, train_loader, optimizer, criterion):
   model.train()
@@ -15,6 +86,7 @@ def train_model(model, device, train_loader, optimizer, criterion):
   train_loss = 0
   correct = 0
   processed = 0
+  print_errors = True
 
   for batch_idx, (data, target) in enumerate(pbar):
     data, target = data.to(device), target.to(device)
@@ -33,6 +105,12 @@ def train_model(model, device, train_loader, optimizer, criterion):
 
     correct += get_correct_predict_count(pred,
                                          target)
+
+    incorrect_preds = get_incorrect_predictions(pred, target)
+    if (print_errors):
+        print_incorrect_preds(incorrect_preds, data, pred, target)
+        print_errors = False
+
     processed += len(data)
 
     pbar.set_description(
@@ -44,9 +122,12 @@ def train_model(model, device, train_loader, optimizer, criterion):
   return [ train_accuracy, train_loss ]
 
 
+        
+
 def test_model(model, device, test_loader, criterion):
     model.eval()
-
+    incorrect_preds = []
+    incorrect_pred_count = 10
     test_loss = 0
     correct = 0
 
@@ -58,7 +139,10 @@ def test_model(model, device, test_loader, criterion):
             test_loss += criterion(output, target, reduction='sum').item()  # sum up batch loss
 
             correct += get_correct_predict_count(output, target)
-
+            incorrect_preds = get_incorrect_predictions(output, target)
+            #print_incorrect_preds(incorrect_preds, data, output, target)
+            
+            
 
     test_loss /= len(test_loader.dataset)
     test_accuracy = 100. * correct / len(test_loader.dataset)
