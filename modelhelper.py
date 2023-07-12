@@ -150,7 +150,7 @@ def get_normalization_module(type='bn', num_filters=0, group_size=0):
         return nn.BatchNorm2d(num_features=num_filters)
     
     if type == 'gn':
-        return nn.GroupNorm(num_groups= group_size, num_channels= num_filters)
+        return nn.GroupNorm(num_groups=group_size, num_channels=num_filters)
 
     if type == 'ln':
         return nn.GroupNorm(num_groups=1, num_channels=num_filters)

@@ -2,10 +2,32 @@ import torch.nn as nn
 import torch.nn.functional as F
 from modelhelper import block 
 
+'''
+Model Batch Norm
+'''
 DROP_OUT = 0.1
 NORMALISATION = 'bn'
 GROUP_SIZE = 0
 ACTIVATION = 'relu'
+
+'''
+Group Norm
+
+DROP_OUT = 0.1
+NORMALISATION = 'gn'
+GROUP_SIZE = 0
+ACTIVATION = 'relu'
+'''
+
+'''
+Layer Norm
+
+DROP_OUT = 0.1
+NORMALISATION = 'ln'
+GROUP_SIZE = 0
+ACTIVATION = 'relu'
+'''
+
 
 class Net(nn.Module):
     #This defines the structure of the NN.
